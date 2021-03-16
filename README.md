@@ -11,6 +11,11 @@ or:
 curl https://raw.githubusercontent.com/swissinnovationlab/python_utils_cloud_locker_starter/main/cloud_locker_starter.sh -o cloud_locker_starter.sh
 ```
 
+## Set the permissions
+```sh
+chmod +x ./cloud_locker_starter.sh
+```
+
 ## Run the starter script
 ```sh
 ./cloud_locker_starter.sh
