@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 CLOUD_LOCKERS_PATH="${HOME}/git/swissinnovationlab/cloud_lockers"
 LOCAL_MANAGER_PATH="${CLOUD_LOCKERS_PATH}/python_utils_cloud_locker_manager"
