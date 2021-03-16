@@ -1,29 +1,45 @@
 #!/usr/bin/sh
 
-CLOUD_LOCKERS_PATH="${HOME}/git/swissinnovationlab/cloud_lockers"
+CLOUD_LOCKERS_PATH="~/git/swissinnovationlab/cloud_lockers"
+
+LOCAL_COMMON_PATH="${CLOUD_LOCKERS_PATH}/python_common_cloud_locker"
+REMOTE_COMMON_PATH="https://github.com/swissinnovationlab/python_common_cloud_locker"
+
 LOCAL_MANAGER_PATH="${CLOUD_LOCKERS_PATH}/python_utils_cloud_locker_manager"
 REMOTE_MANAGER_PATH="https://github.com/swissinnovationlab/python_utils_cloud_locker_manager"
-LOCAL_MANAGER_PATH_LINE="export PATH=\$PATH:${LOCAL_MANAGER_PATH}/src"
-SHELL_CONFIG_FILE="${HOME}/.bashrc"
 
-echo "Creating dir"
-mkdir -p ${CLOUD_LOCKERS_PATH}
+MANAGER_SHELL_PATH="export PATH=\$PATH:${LOCAL_MANAGER_PATH}/src"
+MANAGER_PYTHON_PATH="export PYTHONPATH=\$PYTHONPATH:${LOCAL_MANAGER_PATH}/src"
+COMMON_PYTHON_PATH="export PYTHONPATH=\$PYTHONPATH:${LOCAL_COMMON_PATH}/common_cloud_locker"
 
-echo "Checking linux dependencies"
+SHELL_CONFIG_FILE="~/.bashrc"
+
+echo "Creating dir" ${CLOUD_LOCKERS_PATH}
+mkdir -p $(eval echo ${CLOUD_LOCKERS_PATH})
+
+echo "Checking linux dependencies" "[git, python, pip]"
 if [ -z "$(command -v git)" ]; then sudo pacman -S git; fi
 if [ -z "$(command -v python)" ]; then sudo pacman -S python; fi
 if [ -z "$(command -v pip)" ]; then sudo pacman -S python-pip; fi
 
-echo "Cloning manager"
-if [ ! -d "${LOCAL_MANAGER_PATH}" ]; then
-    git clone ${REMOTE_MANAGER_PATH} ${LOCAL_MANAGER_PATH}
-    chmod +x ${LOCAL_MANAGER_PATH}/src/manager.py
+echo "Cloning manager and common"
+if [ ! -d "$(eval echo ${LOCAL_MANAGER_PATH})" ]; then
+  git clone $(eval echo ${REMOTE_MANAGER_PATH} ${LOCAL_MANAGER_PATH})
+  chmod +x $(eval echo ${LOCAL_MANAGER_PATH})/src/manager.py
+fi
+if [ ! -d "$(eval echo ${LOCAL_COMMON_PATH})" ]; then
+  git clone $(eval echo ${REMOTE_COMMON_PATH} ${LOCAL_COMMON_PATH})
 fi
 
-echo "Setting up PATH"
-if ! grep -Fxq "${LOCAL_MANAGER_PATH_LINE}" ${SHELL_CONFIG_FILE}; then
-  echo ${LOCAL_MANAGER_PATH_LINE} >> ${SHELL_CONFIG_FILE}
-  source ${SHELL_CONFIG_FILE}
+echo "Setting up PATH and PYTHONPATH in " ${SHELL_CONFIG_FILE} 
+if ! grep -Fxq "${MANAGER_SHELL_PATH}" $(eval echo ${SHELL_CONFIG_FILE}); then
+  echo ${MANAGER_SHELL_PATH} >> $(eval echo ${SHELL_CONFIG_FILE})
+fi
+if ! grep -Fxq "${MANAGER_PYTHON_PATH}" $(eval echo ${SHELL_CONFIG_FILE}); then
+  echo ${MANAGER_PYTHON_PATH} >> $(eval echo ${SHELL_CONFIG_FILE})
+fi
+if ! grep -Fxq "${COMMON_PYTHON_PATH}" $(eval echo ${SHELL_CONFIG_FILE}); then
+  echo ${COMMON_PYTHON_PATH} >> $(eval echo ${SHELL_CONFIG_FILE})
 fi
 
 echo
