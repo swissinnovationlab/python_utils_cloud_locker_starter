@@ -18,7 +18,7 @@ if [ -z "$(command -v python)" ]; then sudo pacman -S python; fi
 if [ -z "$(command -v pip)" ]; then sudo pacman -S python-pip; fi
 
 echo "Install python dependencies [typer]"
-if [ ! -z $(python -c "import typer") ]; then pip install --user typer; fi
+if [ -z $(python -c "import typer") ]; then pip install --user typer; fi
 
 echo "Cloning manager and common"
 if [ ! -d "$(eval echo ${LOCAL_MANAGER_PATH})" ]; then
