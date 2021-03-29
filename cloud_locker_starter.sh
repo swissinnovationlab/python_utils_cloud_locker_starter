@@ -16,19 +16,27 @@ fi
 echo "Creating dir" ${CLOUD_LOCKERS_PATH}
 mkdir -p $(eval echo ${CLOUD_LOCKERS_PATH})
 
-LOCAL_MANAGER_PATH="${CLOUD_LOCKERS_PATH}/python_utils_cloud_locker_manager"
-REMOTE_MANAGER_PATH="https://github.com/swissinnovationlab/python_utils_cloud_locker_manager"
+MANAGER_REPO_NAME="python_utils_cloud_locker_manager"
+LOCAL_MANAGER_PATH="${CLOUD_LOCKERS_PATH}/${MANAGER_REPO_NAME}"
+REMOTE_MANAGER_PATH="https://github.com/swissinnovationlab/${MANAGER_REPO_NAME}"
 echo "Cloning manager and common"
 if [ ! -d "$(eval echo ${LOCAL_MANAGER_PATH})" ]; then
   git clone $(eval echo ${REMOTE_MANAGER_PATH} ${LOCAL_MANAGER_PATH})
   chmod +x $(eval echo ${LOCAL_MANAGER_PATH})/src/manager.py
 fi
 
-MANAGER_SHELL_PATH="export PATH=\$PATH:${LOCAL_MANAGER_PATH}/src"
+EXPORT_CLOUD_LOCKERS_PATH="export CLOUD_LOCKERS_PATH=${CLOUD_LOCKERS_PATH}"
+EXPORT_MANAGER_PATH="export PATH=\$PATH:\$CLOUD_LOCKERS_PATH/${MANAGER_REPO_NAME}/src"
 CLOUD_LOCKERS_ENV="${CLOUD_LOCKERS_PATH}/cloud_lockers.env"
 echo "Setting up PATH in " ${CLOUD_LOCKERS_ENV} 
-if ! grep -Fxq "${MANAGER_SHELL_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
-  echo ${MANAGER_SHELL_PATH} >> $(eval echo ${CLOUD_LOCKERS_ENV})
+if [ ! -f "$CLOUD_LOCKERS_ENV" ]; then
+  touch $CLOUD_LOCKERS_ENV
+fi
+if ! grep -Fxq "${EXPORT_CLOUD_LOCKERS_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
+  echo ${EXPORT_CLOUD_LOCKERS_PATH} >> $(eval echo ${CLOUD_LOCKERS_ENV})
+fi
+if ! grep -Fxq "${EXPORT_MANAGER_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
+  echo ${EXPORT_MANAGER_PATH} >> $(eval echo ${CLOUD_LOCKERS_ENV})
 fi
 
 echo
