@@ -1,13 +1,12 @@
 #!/usr/bin/sh
 
-
 echo "Install linux dependencies [git, python, pip]"
 if [ -z "$(command -v git)" ]; then sudo pacman -S git; fi
 if [ -z "$(command -v python)" ]; then sudo pacman -S python; fi
 if [ -z "$(command -v pip)" ]; then sudo pacman -S python-pip; fi
 
 echo "Install python dependencies [typer]"
-if [ ! -z $(python -c "import typer") ]; then pip install --user typer; fi
+if [ -z $(python -c "import typer") ]; then pip install --user typer; fi
 
 CLOUD_LOCKERS_PATH="~/git/swissinnovationlab/cloud_lockers"
 read -p "Enter CLOUD_LOKERS_PATH [$CLOUD_LOCKERS_PATH]: " path
