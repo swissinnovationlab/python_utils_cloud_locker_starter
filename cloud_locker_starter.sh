@@ -1,5 +1,10 @@
 #!/usr/bin/sh
 
+if [[ $EUID -eq 0 ]]; then
+   echo "This script must be run as user" 
+   exit 1
+fi
+
 echo "Install linux dependencies [git, python, pip]"
 if [ -z "$(command -v git)" ]; then sudo pacman -S git; fi
 if [ -z "$(command -v python)" ]; then sudo pacman -S python; fi
