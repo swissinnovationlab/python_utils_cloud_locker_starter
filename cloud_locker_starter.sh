@@ -32,6 +32,7 @@ fi
 
 EXPORT_CLOUD_LOCKERS_PATH="export CLOUD_LOCKERS_PATH=${CLOUD_LOCKERS_PATH}"
 EXPORT_MANAGER_PATH="export PATH=\$PATH:\$CLOUD_LOCKERS_PATH/${MANAGER_REPO_NAME}/src"
+EXPORT_DISPLAY="export DISPLAY=:0"
 CLOUD_LOCKERS_ENV="${CLOUD_LOCKERS_PATH}/cloud_lockers.env"
 echo "Setting up PATH in " ${CLOUD_LOCKERS_ENV} 
 if [ ! -f "$CLOUD_LOCKERS_ENV" ]; then
@@ -42,6 +43,9 @@ if ! grep -Fxq "${EXPORT_CLOUD_LOCKERS_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV});
 fi
 if ! grep -Fxq "${EXPORT_MANAGER_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
   echo ${EXPORT_MANAGER_PATH} >> $(eval echo ${CLOUD_LOCKERS_ENV})
+fi
+if ! grep -Fxq "${EXPORT_DISPLAY}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
+  echo ${EXPORT_DISPLAY} >> $(eval echo ${CLOUD_LOCKERS_ENV})
 fi
 
 echo
