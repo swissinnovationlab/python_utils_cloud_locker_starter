@@ -36,7 +36,7 @@ EXPORT_DISPLAY="export DISPLAY=:0"
 CLOUD_LOCKERS_ENV="${CLOUD_LOCKERS_PATH}/cloud_lockers.env"
 echo "Setting up PATH in " ${CLOUD_LOCKERS_ENV} 
 if [ ! -f "$CLOUD_LOCKERS_ENV" ]; then
-  touch $CLOUD_LOCKERS_ENV
+  touch $(eval echo ${CLOUD_LOCKERS_ENV})
 fi
 if ! grep -Fxq "${EXPORT_CLOUD_LOCKERS_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
   echo ${EXPORT_CLOUD_LOCKERS_PATH} >> $(eval echo ${CLOUD_LOCKERS_ENV})
