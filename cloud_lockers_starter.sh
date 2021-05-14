@@ -12,6 +12,7 @@ if [ -z "$(command -v pip)" ]; then sudo pacman -S python-pip; fi
 
 echo "Install python dependencies [typer]"
 if [ -z $(python -c "import typer") ]; then pip install --user typer; fi
+if [ -z $(python -c "import git") ]; then pip install --user gitpython; fi
 
 CLOUD_LOCKERS_PATH="~/git/swissinnovationlab/cloud_lockers"
 read -p "Enter CLOUD_LOKERS_PATH [$CLOUD_LOCKERS_PATH]: " path
@@ -41,7 +42,7 @@ EXPORT_DISPLAY="export DISPLAY=:0"
 CLOUD_LOCKERS_ENV="${CLOUD_LOCKERS_PATH}/cloud_lockers.env"
 echo "Setting up PATH in " ${CLOUD_LOCKERS_ENV} 
 if [ ! -f "$CLOUD_LOCKERS_ENV" ]; then
-  touch $CLOUD_LOCKERS_ENV
+  touch $(eval echo ${CLOUD_LOCKERS_ENV})
 fi
 if ! grep -Fxq "${EXPORT_CLOUD_LOCKERS_PATH}" $(eval echo ${CLOUD_LOCKERS_ENV}); then
   echo ${EXPORT_CLOUD_LOCKERS_PATH} >> $(eval echo ${CLOUD_LOCKERS_ENV})
@@ -58,4 +59,6 @@ echo "Finished."
 echo "Put next line in your shell environment:"
 echo "    source ${CLOUD_LOCKERS_ENV}"
 echo "After that restart your terminal and run:"
-echo "    manager.py install"
+echo "    manager.py --env-prod install"
+echo "You can add password ENV variable to ${CLOUD_LOCKERS_ENV}"
+echo "    export CLOUD_LOCKERS_PASSWORD=\"\""
