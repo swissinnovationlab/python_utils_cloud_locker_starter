@@ -26,7 +26,12 @@ LOCAL_MANAGER_PATH="${CLOUD_LOCKERS_PATH}/${MANAGER_REPO_NAME}"
 REMOTE_MANAGER_PATH="https://github.com/swissinnovationlab/${MANAGER_REPO_NAME}"
 echo "Cloning manager and common"
 if [ ! -d "$(eval echo ${LOCAL_MANAGER_PATH})" ]; then
-  git clone $(eval echo ${REMOTE_MANAGER_PATH} ${LOCAL_MANAGER_PATH})
+  if [ -z "$TAG" ]
+  then
+    git clone $(eval echo ${REMOTE_MANAGER_PATH} ${LOCAL_MANAGER_PATH})
+  else
+    git clone --branch $TAG $(eval echo ${REMOTE_MANAGER_PATH} ${LOCAL_MANAGER_PATH})
+  fi
   chmod +x $(eval echo ${LOCAL_MANAGER_PATH})/src/manager.py
 fi
 
