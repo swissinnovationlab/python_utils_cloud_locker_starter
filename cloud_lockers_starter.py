@@ -323,16 +323,18 @@ class Installer(unittest.TestCase):
             write_lines_to_file([], path_and_filename)
             self.assertTrue(check_if_path_exists(path_and_filename))
         for key, value in variables.items():
+            line = "export %s=%s" % (key, value)
             try:
-                self.assertTrue(is_line_in_file(key, path_and_filename))
+                self.assertTrue(is_line_in_file(line, path_and_filename))
             except:
-                insert_line_in_file("export %s=%s" % (key, value), path_and_filename)
+                insert_line_in_file(line, path_and_filename)
                 self.assertTrue(is_line_in_file(key, path_and_filename))
         for key, value in static_variables.items():
+            line = "export %s=%s" % (key, value)
             try:
-                self.assertTrue(is_line_in_file(key, path_and_filename))
+                self.assertTrue(is_line_in_file(line, path_and_filename))
             except:
-                insert_line_in_file("export %s=%s" % (key, value), path_and_filename)
+                insert_line_in_file(line, path_and_filename)
                 self.assertTrue(is_line_in_file(key, path_and_filename))
                 
     def install_git(self):
@@ -367,7 +369,6 @@ if __name__ == "__main__" and not sys.flags.inspect:
     print("Starting installer")
     change_variables()
     main()
-    print("Installation finished")
     path = variables["CLOUD_LOCKERS_PATH"]
     filename = "cloud_lockers.env"
     path_and_filename = "%s/%s" % (path, filename)
@@ -377,3 +378,5 @@ if __name__ == "__main__" and not sys.flags.inspect:
         anwser = input("Do you want to add source to .bashrc [Y/n]: ")
         if anwser in ["Y", ""]:
             insert_line_in_file(line, bashrc)
+    print("Installation finished")
+    print("source ~/.bashrc && manager.py install")
