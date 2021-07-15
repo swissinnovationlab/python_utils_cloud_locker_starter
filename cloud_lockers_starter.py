@@ -208,7 +208,7 @@ def is_line_in_file(line, filename):
 
 def insert_line_in_file(line, filename):
     lines = read_lines_from_file(filename)
-    lines.append(line)
+    lines.append(line + "\n")
     write_lines_to_file(lines, filename)
 
 
