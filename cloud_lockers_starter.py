@@ -308,7 +308,6 @@ class Installer(unittest.TestCase):
             except:
                 print("##### Installing %s #####" % (key))
                 self.assertTrue(install_module(value))
-                self.assertTrue(is_module_installed(key))
 
     def install_variables(self):
         #change_variables()
