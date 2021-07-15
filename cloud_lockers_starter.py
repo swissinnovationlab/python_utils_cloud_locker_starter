@@ -2,7 +2,7 @@
 
 import os
 import shutil
-import importlib
+import importlib.util
 import pip
 import pty
 from subprocess import Popen
