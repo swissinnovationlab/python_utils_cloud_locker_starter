@@ -376,7 +376,7 @@ if __name__ == "__main__" and not sys.flags.inspect:
     bashrc = "~/.bashrc"
     if not is_line_in_file(line, bashrc):
         anwser = input("Do you want to add source to .bashrc [Y/n]: ")
-        if anwser in ["Y", ""]:
+        if anwser in ["Y", "y", ""]:
             insert_line_in_file(line, bashrc)
     print("Installation finished")
     print("source ~/.bashrc && manager.py install")
