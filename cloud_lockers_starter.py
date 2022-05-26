@@ -27,8 +27,17 @@ linux_password = None
 
 variables = {
     "CLOUD_LOCKERS_PATH": "~/git/swissinnovationlab/cloud_lockers",
-    "CLOUD_LOCKERS_PASSWORD": "",
-    "CLOUD_LOCKERS_PROD": "true"
+    "CLOUD_LOCKERS_PASSWORD": None,
+    "CLOUD_LOCKERS_PROD": "true",
+    "CLOUD_LOCKERS_GITHUB_TOKEN": None
+}
+
+variables_flags = {
+    '-o': 'CLOUD_LOCKERS_PATH',
+    '-p': 'CLOUD_LOCKERS_PASSWORD',
+    '-d': 'CLOUD_LOCKERS_PROD',
+    '-P': 'CLOUD_LOCKERS_PROD',
+    '-t': 'CLOUD_LOCKERS_GITHUB_TOKEN',
 }
 
 static_variables = {
@@ -104,6 +113,7 @@ def run_bash_cmd(cmd, echo=False, interaction={}, return_lines=True, return_code
 def is_root():
     return os.geteuid() == 0
 
+
 ##### LINUX start #####
 
 
@@ -114,7 +124,10 @@ def is_exe(cmd):
 def get_sudo_password():
     global linux_password
     if linux_password is None:
-        linux_password = getpass("Enter [sudo] password: ")
+        if variables["CLOUD_LOCKERS_PASSWORD"] is not None:
+            linux_password = variables["CLOUD_LOCKERS_PASSWORD"]
+        else:
+            linux_password = getpass("Enter [sudo] password: ")
     return linux_password
 
 
@@ -137,6 +150,7 @@ def remove_pacman_package(name):
     }
     return run_bash_cmd(cmd, echo=True, interaction=interaction, return_lines=False, return_code=True) == 0
 
+
 ##### LINUX end #####
 ##### PYTHON start #####
 
@@ -151,6 +165,7 @@ def install_module(name):
 
 def remove_module(name):
     return pip.main(['uninstall', name, '--yes']) == 0
+
 
 ##### PYTHON end #####
 ##### VARIABLES start #####
@@ -190,12 +205,38 @@ def read_lines_from_file(filename):
     return lines
 
 
+def parse_args():
+    result = {}
+    args = sys.argv[1:]
+    for flag, variable in variables_flags.items():
+        if flag in args:
+            flag_index = args.index(flag)
+            value_index = flag_index + 1
+            value = None
+            if value_index < len(args):
+                value = args[value_index]
+            if value in variables_flags:
+                value = None
+            result[variable] = value
+    if "CLOUD_LOCKERS_PROD" in result:
+        if '-d' in args:
+            result["CLOUD_LOCKERS_PROD"] = "false"
+        elif '-P' in args:
+            result["CLOUD_LOCKERS_PROD"] = "true"
+    return result
+
+
 def change_variables():
     global variables
+    args = parse_args()
     for key in variables:
-        value = input("%s [\"%s\"]: " % (key, variables[key]))
-        if value:
-            variables[key] = value
+        if key in args:
+            variables[key] = args[key]
+        else:
+            value = input("%s [\"%s\"]: " % (key, variables[key]))
+            if len(value) > 0:
+                variables[key] = value
+    print(variables)
 
 
 def is_line_in_file(line, filename):
@@ -229,12 +270,21 @@ def remove_line_from_file(line, filename):
 def get_env_file_path():
     return "%s/%s" % (variables['CLOUD_LOCKERS_PATH'], "cloud_lockers.env")
 
+
 ##### VARIABLES end #####
 ##### GIT start #####
 
 def clone_git_repo(repo, path):
     cmd = "git clone %s %s" % (repo, path)
-    return os.system(cmd)
+    if variables["CLOUD_LOCKERS_GITHUB_TOKEN"] is not None:
+        interaction = {
+            "Username for": variables["CLOUD_LOCKERS_GITHUB_TOKEN"],
+            "Password for": ""
+        }
+        run_bash_cmd(cmd=cmd, interaction=interaction)
+    else:
+        return os.system(cmd)
+
 
 ##### GIT end #####
 ##### TESTS start #####
@@ -286,6 +336,7 @@ def tests():
     suite.addTest(Tests('test_paths'))
     unittest.TextTestRunner().run(suite)
 
+
 ##### TESTS end #####
 ##### INSTALLER start #####
 
@@ -310,7 +361,7 @@ class Installer(unittest.TestCase):
                 self.assertTrue(install_module(value))
 
     def install_variables(self):
-        #change_variables()
+        # change_variables()
         path = variables["CLOUD_LOCKERS_PATH"]
         filename = "cloud_lockers.env"
         path_and_filename = "%s/%s" % (path, filename)
@@ -335,7 +386,7 @@ class Installer(unittest.TestCase):
             except:
                 insert_line_in_file(line, path_and_filename)
                 self.assertTrue(is_line_in_file(key, path_and_filename))
-                
+
     def install_git(self):
         path = variables["CLOUD_LOCKERS_PATH"]
         repo_base = "https://github.com/swissinnovationlab"
@@ -353,6 +404,7 @@ class Installer(unittest.TestCase):
             clone_git_repo(repo_base_and_name, path_and_name)
             self.assertTrue(check_if_path_exists(path_and_name))
 
+
 def main():
     suite = unittest.TestSuite()
     suite.addTest(Installer('install_linux'))
@@ -361,11 +413,20 @@ def main():
     suite.addTest(Installer('install_git'))
     unittest.TextTestRunner().run(suite)
 
+
 ##### INSTALLER end #####
 
 
 if __name__ == "__main__" and not sys.flags.inspect:
     print("Starting installer")
+    if "-h" in sys.argv[1:]:
+        print("Usage:")
+        print("  -o <install path>")  # kam se instalira, default ~/git/swissinnovationlab/cloud_lockers
+        print("  -p <user password>")  # default empty
+        print("  -d/-P                # develop or production")  # development
+        print("  -t <github token>")  # default empty
+        print("  -b                   # add source to .bashrc")  # default empty
+        exit(0)
     change_variables()
     main()
     path = variables["CLOUD_LOCKERS_PATH"]
@@ -374,8 +435,11 @@ if __name__ == "__main__" and not sys.flags.inspect:
     line = "source %s" % (path_and_filename)
     bashrc = "~/.bashrc"
     if not is_line_in_file(line, bashrc):
-        anwser = input("Do you want to add source to .bashrc [Y/n]: ")
-        if anwser in ["Y", "y", ""]:
+        if "-b" in sys.argv[1:]:
             insert_line_in_file(line, bashrc)
+        else:
+            anwser = input("Do you want to add source to .bashrc [Y/n]: ")
+            if anwser in ["Y", "y", ""]:
+                insert_line_in_file(line, bashrc)
     print("Installation finished")
     print("source ~/.bashrc && manager.py install")
