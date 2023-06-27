@@ -160,11 +160,14 @@ def is_module_installed(name):
 
 
 def install_module(name):
-    return pip.main(['install', name]) == 0
+    cmd = f"pip install --break-system-packages {name}"
+    return run_bash_cmd(cmd, echo=True, return_lines=False, return_code=True) == 0
 
 
 def remove_module(name):
-    return pip.main(['uninstall', name, '--yes']) == 0
+    interaction = {"Proceed (Y/n)?": "Y"}
+    cmd = f"pip uninstall --break-system-packages {name}"
+    return run_bash_cmd(cmd, echo=True, interaction=interaction, return_lines=False, return_code=True) == 0
 
 
 ##### PYTHON end #####
@@ -354,11 +357,11 @@ class Installer(unittest.TestCase):
 
     def install_python(self):
         for key, value in python_dependencies.items():
-            try:
-                self.assertTrue(is_module_installed(key))
-            except:
-                print("##### Installing %s #####" % (key))
-                self.assertTrue(install_module(value))
+            #try:
+            #    self.assertTrue(is_module_installed(key))
+            #except:
+            print("##### Installing %s #####" % (key))
+            self.assertTrue(install_module(value))
 
     def install_variables(self):
         # change_variables()
