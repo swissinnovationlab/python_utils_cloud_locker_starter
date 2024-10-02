@@ -1,0 +1,6 @@
+services:
+  cloud_locker_starter:
+    container_name: cloud_locker_starter
+    build: .
+    environment:
+      GIT_TOKEN: <TEST_TOKEN>
